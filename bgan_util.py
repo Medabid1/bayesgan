@@ -484,7 +484,7 @@ class African_Mask():
     
     def __init__(self, path):
         self.path = path
-        self.x_dim = [32, 32, 3]
+        self.x_dim = [64, 64, 3]
         self.num_train = 2070
         self.num_test = 240
         self.dataset_size = self.num_train
