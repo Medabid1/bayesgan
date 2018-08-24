@@ -326,7 +326,7 @@ class BDCGAN(object):
 
     def discriminator(self, image, K, disc_params, train=True):
 
-        with tf.variable_scope("discriminator") as scope:
+        with tf.variable_scope("discriminator", reuse=tf.AUTO_REUSE) as scope:
 
             h = image
             for layer in range(len(self.disc_strides)):
@@ -357,7 +357,7 @@ class BDCGAN(object):
 
     def generator(self, z, gen_params):
 
-        with tf.variable_scope("generator") as scope:
+        with tf.variable_scope("generator", reuse=tf.AUTO_REUSE) as scope:
 
             h = linear(z, self.gen_weight_dims["g_h0_lin_W"][-1], 'g_h0_lin',
                        matrix=gen_params.g_h0_lin_W, bias=gen_params.g_h0_lin_b)
@@ -397,8 +397,8 @@ class BDCGAN(object):
     def gen_noise(self, gen_params): 
         with tf.variable_scope("generator") as scope:
             noise_loss = 0.0
-            for name, var in gen_params.iteritems():
-                noise_ = tf.contrib.distributions.Normal(mu=0., sigma=self.noise_std*tf.ones(var.get_shape()))
+            for name, var in gen_params.items():
+                noise_ = tf.contrib.distributions.Normal(0., self.noise_std*tf.ones(var.get_shape()))
                 noise_loss += tf.reduce_sum(var * noise_.sample())
         noise_loss /= self.dataset_size
         return noise_loss
@@ -418,7 +418,7 @@ class BDCGAN(object):
         with tf.variable_scope("discriminator") as scope:
             noise_loss = 0.0
             for var in disc_params.values():
-                noise_ = tf.contrib.distributions.Normal(mu=0., sigma=self.noise_std*tf.ones(var.get_shape()))
+                noise_ = tf.contrib.distributions.Normal(0., self.noise_std*tf.ones(var.get_shape()))
                 noise_loss += tf.reduce_sum(var * noise_.sample())
         noise_loss /= self.dataset_size
         return noise_loss

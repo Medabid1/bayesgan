@@ -15,7 +15,7 @@ import tensorflow as tf
 from tensorflow.contrib import slim
 
 from bgan_util import AttributeDict
-from bgan_util import print_images, MnistDataset, CelebDataset, Cifar10, SVHN, ImageNet
+from bgan_util import print_images, MnistDataset, CelebDataset, Cifar10, SVHN, ImageNet, African_Mask
 from bgan import BDCGAN
 
 
@@ -170,7 +170,7 @@ if __name__ == "__main__":
 
     parser.add_argument('--dataset',
                         type=str,
-                        default="mnist",
+                        default="African_Mask",
                         help='datasate name mnist etc.')
 
     parser.add_argument('--batch_size',
@@ -226,6 +226,7 @@ if __name__ == "__main__":
 
     parser.add_argument('--save_samples',
                         action="store_true",
+                        default = True,
                         help="wether to save generated samples")
     
     parser.add_argument('--save_weights',
@@ -269,7 +270,7 @@ if __name__ == "__main__":
     with open(os.path.join(args.out_dir, "hypers.txt"), "w") as hf:
         hf.write("Hyper settings:\n")
         hf.write("%s\n" % (pprint.pformat(args.__dict__)))
-        
+    African = args.data_path
     celeb_path = os.path.join(args.data_path, "celebA")
     cifar_path = os.path.join(args.data_path, "cifar-10-batches-py")
     svhn_path = os.path.join(args.data_path, "svhn")
@@ -279,6 +280,8 @@ if __name__ == "__main__":
 
     if args.dataset == "mnist":
         dataset = MnistDataset(mnist_path)
+    elif args.dataset =='African_Mask' :
+        dataset = African_Mask(African)
     elif args.dataset == "celeb":
         dataset = CelebDataset(celeb_path)
     elif args.dataset == "cifar":

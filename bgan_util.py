@@ -30,7 +30,7 @@ def print_images(sampled_images, label, index, directory, save_all_samples=False
 
     def unnormalize(img, cdim):
         img_out = np.zeros_like(img)
-        for i in xrange(cdim):
+        for i in range(cdim):
             img_out[:, :, i] = 255.* ((img[:, :, i] + 1.) / 2.0)
         img_out = img_out.astype(np.uint8)
         return img_out
@@ -450,7 +450,7 @@ class Cifar10():
         
         self.imgs = []
         self.labels = [] 
-        for i in xrange(1, 6):
+        for i in range(1, 6):
             batch_name = os.path.join(path, 'data_batch_%i' % i)
             print( batch_name)
             images, labels = process_batch(batch_name)
@@ -480,3 +480,54 @@ class Cifar10():
                                     size=(batch_size,), replace=False)
         return self.test_imgs[rand_idx], self.test_labels[rand_idx]
     
+class African_Mask():
+    
+    def __init__(self, path):
+        self.path = path
+        self.x_dim = [32, 32, 3]
+        self.num_train = 2070
+        self.num_test = 240
+        self.dataset_size = self.num_train
+        self.images = np.array([ imresize(imread(os.path.join(self.path,i)), self.x_dim) for i in os.listdir(path) ])
+
+    
+    def get_batch(self, batch_img):
+        
+        new_image_batch = []; 
+        
+        for X in batch_img:
+            Xnorm = np.copy(X).astype(np.float64)
+            Xg = np.zeros((X.shape[0], X.shape[1], 1))
+            for i in range(3):
+                Xnorm[:, :, i] /= 255.0
+                Xnorm[:, :, i] = Xnorm[:, :, i] * 2. - 1.
+            #Xg[:, :, 0] = 0.2126 * Xnorm[:, :, 0] + 0.7152 * Xnorm[:, :, 1] + 0.0722 * Xnorm[:, :, 2]
+            new_image_batch.append(Xnorm)
+            #new_image_batch.append(Xg)            
+            _ = 0
+        return np.array(new_image_batch), _
+
+    
+    def next_batch(self, batch_size, class_id=None):
+        got_batch = False
+        while not got_batch:
+            rand_idx = np.random.choice(range(len(self.images)), size=(2*batch_size,), replace=False)
+            rand = self.images[rand_idx]
+            X_batch, _ = self.get_batch(rand)
+            if X_batch.shape[0] >= batch_size:
+                got_batch = True
+                
+        return X_batch[:batch_size], _
+    
+
+    def test_batch(self, batch_size):
+        got_batch = False
+        while not got_batch:
+            rand_idx = np.random.choice(range(self.num_train, self.num_train + self.num_test),
+            size=(2*batch_size,), replace=False)
+            X_batch, _ = self.get_batch(rand_idx)
+            if X_batch.shape[0] >= batch_size:
+                got_batch = True
+                
+        return X_batch[:batch_size], _
+
